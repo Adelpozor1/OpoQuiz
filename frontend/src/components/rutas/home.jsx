@@ -12,7 +12,7 @@ function Home() {
         <Link to="/registro" className="btn btn-primary me-2">
           Ir a Registro
         </Link>
-        <Link to="/test" className="btn btn-success">
+        <Link to="/test" className="btn btn-success" >
           Hacer un Test
         </Link>
       </div>
