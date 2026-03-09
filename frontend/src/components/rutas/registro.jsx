@@ -1,70 +1,115 @@
 import { useState } from "react";
-import "../components_css/formulario.css"; // 👈 importante
+import "../components_css/formulario.css";
 
-function Registro() {
-  const [formData, setFormData] = useState({ nombre: "", email: "", password: "" });
+function Registro() { 
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [formData, setFormData] = useState({ 
+    nombre: "", 
+    email: "", 
+    password: "", 
+  });
+
+  const [mensaje, setMensaje] = useState("");
+
+
+
+
+function  handleChange (e) {
+
+  const nombreDelCampo = e.target.name;
+  const valorEscrito = e.target.value;
+
+  const nuevo = {
+    nombre: formData.nombre,
+    email: formData.email,
+    password: formData.password,
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch("http://localhost:5000/register", {
+  if(nombreDelCampo === "nombre") nuevo.nombre = valorEscrito;
+  if(nombreDelCampo === "email") nuevo.email = valorEscrito;
+  if(nombreDelCampo === "password") nuevo.password = valorEscrito;
+
+  setFormData(nuevo);
+
+}
+
+async function handleSubmit (e) {
+  e.preventDefault();
+  console.log("Datos de formulario:", formData)
+
+  try{
+    const res = await fetch("http://localhost3000/insertDB", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers : {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(formData),
     });
-    const data = await response.json();
-    alert(data.message);
-  };
+
+    const data = await res.json();
+
+    if (!res.ok){
+      setMensaje(data.msg || "Error al registrar")
+      return;
+    }
+
+    setMensaje(data.msg || "Usuario registrado correctamente")
+  }catch (error) {
+    console.error("Error de red: ", error);
+    setMensaje("No se puede conectar con el servidor")
+  }
+}
+
+
+
+
+
 
   return (
-    <div className="registro-container">
-      <div className="registro-card">
+    
+    <div>
+      <form onSubmit={handleSubmit}>
         <h2>Registro</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3 text-start">
-            <label className="form-label">Nombre</label>
-            <input
-              type="text"
-              name="nombre"
-              className="form-control"
-              placeholder="Tu nombre"
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {mensaje && <p style={{ margin: "10x" }}>{mensaje}</p>}
 
-          <div className="mb-3 text-start">
-            <label className="form-label">Correo</label>
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              placeholder="tu@correo.com"
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <pre> {JSON.stringify(formData,null,2)}</pre>
+        <input 
+          type="text" 
+          name="nombre" 
+          placeholder="Nombre" 
+          value={formData.nombre}
+          onChange={handleChange}
+        />
 
-          <div className="mb-3 text-start">
-            <label className="form-label">Contraseña</label>
-            <input
-              type="password"
-              name="password"
-              className="form-control"
-              placeholder="********"
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <input 
+        type="email" 
+        name="email" 
+        placeholder="Email"
+        value={formData.email} 
+        onChange={handleChange} 
+        />
 
-          <button type="submit" className="btn btn-primary">Registrarse</button>
-        </form>
-      </div>
+        <input 
+        type="password" 
+        name="password" 
+        placeholder="Password" 
+        value={formData.password} 
+        onChange={handleChange} 
+        />
+
+        <button 
+        type="submit">
+          Registrarse
+        </button>
+
+
+      </form>
+
     </div>
+
+    
   );
 }
+
 
 export default Registro;
